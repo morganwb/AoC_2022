@@ -4,63 +4,91 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"strings"
 	"strconv"
-	// "sort"
+	"strings"
 )
 
 func main() {
-	// var part1Result int
-	// part1Result = 0
-	// var part2Result int
 	var alphaBetVals = make(map[string]int)
-	var i,j int
-	// var err error
-	var cargoShip = make(map[string][]string)
+	var i, j, k int
+	var cS = make(map[string][]string)
+	var cS9 = make(map[string][]string)
 	var loadInitial bool = true
-	cargoShipRead := make([]string, 0)
-	// var stackAssembler []string
+	cSRead := make([]string, 0)
 	lineCounter := 0
 	alphaBet := "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	for i = 0; i<len(alphaBet); i++ {
-		alphaBetVals[string(alphaBet[i])] = i+1
+	for i = 0; i < len(alphaBet); i++ {
+		alphaBetVals[string(alphaBet[i])] = i + 1
 	}
 	f, _ := os.Open("inputs_day5.txt")
 	scanner := bufio.NewScanner(f)
-    for scanner.Scan() {
+	for scanner.Scan() {
 		line := scanner.Text()
-		if loadInitial{
-			cargoShipRead = append(cargoShipRead, line)
+		if loadInitial {
+			cSRead = append(cSRead, line)
 			lineCounter = lineCounter + 1
-			if string(line[1]) == string('1'){
+			if string(line[1]) == string('1') {
 				lineLength := len(line)
-				for i = 0; i<lineLength; i++ {
-					if string(line[i]) != " "{
+				for i = 0; i < lineLength; i++ {
+					if string(line[i]) != " " {
 						index := string(line[i])
-						for j = len(cargoShipRead)-1; j>=0; j-- {
-							if string(cargoShipRead[j][i]) != " " {
-								cargoShip[index] = append(cargoShip[index], string(cargoShipRead[j][i]))
+						for j = len(cSRead) - 1; j >= 0; j-- {
+							if string(cSRead[j][i]) != " " {
+								cS[index] = append(cS[index], string(cSRead[j][i]))
+								cS9[index] = append(cS9[index], string(cSRead[j][i]))
 							}
 						}
-						cargoShip[index] = cargoShip[index][1:len(cargoShip[index])]
-						fmt.Println(cargoShip[index][0])
+						cS[index] = cS[index][1:len(cS[index])]
+						cS9[index] = cS9[index][1:len(cS9[index])]
 					}
 				}
 				loadInitial = false
 			}
-		} else if len(line) > 0{
-			// main sorting function goes here
-			cmdProc:= strings.Split(line, " ")
+		} else if len(line) > 0 {
+			cmdProc := strings.Split(line, " ")
 			var moveCount, _ = strconv.Atoi(cmdProc[1])
 			moveFrom := cmdProc[3]
 			moveTo := cmdProc[5]
-			fmt.Println("============")
-			fmt.Printf("We want to move %d from %s to %s \n", moveCount, moveFrom, moveTo)
-			for i = 0; i<moveCount; i++ {
-				cargoShip[moveTo] = append(cargoShip[moveFrom][len(cargoShip[moveFrom])-1], cargoShip[moveTo])
-				cargoShip[moveFrom] = cargoShip[moveFrom][0:len(cargoShip[moveFrom])-2]
+			for i = 0; i < moveCount; i++ {
+				cS[moveTo] = append(cS[moveTo], cS[moveFrom][len(cS[moveFrom])-1])
+				cS[moveFrom] = cS[moveFrom][0 : len(cS[moveFrom])-1]
 			}
+			cS9mF_len := len(cS9[moveFrom])
+			bottomEnd := cS9mF_len - moveCount
+			cS9[moveTo] = append(cS9[moveTo], cS9[moveFrom][bottomEnd:cS9mF_len]...)
+			cS9[moveFrom] = cS9[moveFrom][0:bottomEnd]
 		}
 	}
-	fmt.Println(cargoShip)
+	// I'm just gonna say it, the keys in key-value pair objects should be stored
+	// in the order in which they were added, so when the keys are returned
+	// by a generator-ish routine, they reappear in the order they were added.
+	// Why isn't this a thing?
+	keyCount := 1
+	for key, _ := range cS {
+		keyCount = keyCount + 1
+		key = ""
+		fmt.Printf(key)
+	}
+	fmt.Println("")
+	for k = 1; k < keyCount; k++ {
+		fmt.Printf(cS[strconv.Itoa(k)][len(cS[strconv.Itoa(k)])-1])
+	}
+	fmt.Printf("\n")
+	fmt.Println("FINAL cS SOLUTION:")
+	fmt.Println(cS)
+
+	fmt.Println("#####################################################################")
+	keyCount = 1
+	for key, _ := range cS9 {
+		keyCount = keyCount + 1
+		key = ""
+		fmt.Printf(key)
+	}
+	fmt.Println("")
+	for k = 1; k < keyCount; k++ {
+		fmt.Printf(cS9[strconv.Itoa(k)][len(cS9[strconv.Itoa(k)])-1])
+	}
+	fmt.Printf("\n")
+	fmt.Println("FINAL cS9 SOLUTION:")
+	fmt.Println(cS9)
 }
